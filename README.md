@@ -39,3 +39,35 @@ Primary data sources include:
 6. Annualized Volatility
 7. Stock Sentiment Analysis
 
+## Basic Data Quality Checks
+
+Robust data quality is critical for the dashboard’s educational purpose. The following data quality checks will be rigorously implemented:
+
+1. Completeness Checks: Ensuring all essential fields (OHLC, volume, splits, ticker metadata) are consistently present.
+2. Accuracy Checks: Validating data against authoritative benchmarks like official closing prices.
+3. Consistency Checks: Confirming temporal data integrity by identifying and rectifying anomalies such as missing or duplicated dates.
+4. Timeliness Checks: Ensuring reliable and prompt daily data updates.
+
+## Detailed Technology Stack
+
+**Data Platform:**
+Tabular: Optimized analytical data store suitable for efficient querying and scalable analytics.
+
+**ETL and Data Catalog:**
+AWS Glue: Enables seamless ETL operations and metadata management using Glue Data Catalog.
+
+**Data Transformation:**
+PySpark: Facilitates efficient, scalable data processing, particularly for complex metric calculations like SMA, EMA, and volatility.
+
+**Workflow Orchestration:**
+Apache Airflow: Orchestrates data workflows reliably and ensures timely execution.
+
+**Visualization and User Interface:**
+Streamlit / Grafana: Provides intuitive, interactive visualizations, enhancing user experience for exploring historical data and metrics.
+
+**Language Model Integration:**
+FastAPI and GPT-4o: Powers an interactive, AI-driven chatbot to answer user queries contextually based on historical data.
+
+## Conclusion
+By leveraging detailed, comprehensive data and advanced analytical tools, this capstone project aims to bridge the gap between novice retail traders' enthusiasm and the foundational understanding necessary for responsible investing practices. The deliverable—a user-friendly educational dashboard—seeks to significantly enhance the data literacy and market awareness of new traders, ultimately fostering more disciplined and informed participation in financial markets.
+
