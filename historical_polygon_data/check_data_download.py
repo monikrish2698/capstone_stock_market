@@ -15,8 +15,9 @@ s3 = session.client(
 years = [2025]
 paginator = s3.get_paginator('list_objects_v2')
 
+total = 0
 for year in years:
-    prefix = f'us_stocks_sip/minute_aggs_v1/{year}'
-    for page in paginator.paginate(Bucket='flatfiles', Prefix=prefix):
-        for obj in page['Contents']:
-            print(obj['Key'])
+    for page in paginator.paginate(Bucket='flatfiles', Prefix=f'us_stocks_sip/day_aggs_v1/{year}/01/'):
+        for obj in page.get("Contents", []):
+            total += obj["Size"]
+print(f"Total input size (bytes): {total}")
