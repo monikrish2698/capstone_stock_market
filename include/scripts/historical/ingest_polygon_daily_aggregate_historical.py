@@ -7,18 +7,16 @@ from pyspark.sql.functions import *
 from pyspark.sql.types import *
 import json
 
-import boto3
-from botocore.config import Config
-
 spark = (SparkSession.builder.getOrCreate())
 glueContext = GlueContext(spark.sparkContext)
 spark = glueContext.spark_session
-print("spark context fetched from Glue")
 
 args = getResolvedOptions(sys.argv, ["polygon_credentials", "output_table", "JOB_NAME"])
 polygon_credentials = json.loads(args['polygon_credentials'])
 output_table = args['output_table']
 
+
+# this is to fetch historical data
 
 s3_bucket = "s3a://flatfiles"
 
@@ -46,9 +44,6 @@ create_table_query = f"""
 # creating table if it does not exists
 spark.sql(create_table_query)
 
-print("table created")
-
-
 years = [2021, 2022, 2023, 2024, 2025]
 
 for year in years:
@@ -66,7 +61,7 @@ for year in years:
         .select('ticker', 'volume', 'open', 'close', 'high', 'low', 'date', 'transactions')
     df2.writeTo(output_table).using("iceberg").partitionedBy("date").overwritePartitions()
     
-    print("done ingesting the iceberg table")
+print("done ingesting the iceberg table")
 
 job = Job(glueContext)
 job.init(args["JOB_NAME"], args)
