@@ -1,10 +1,13 @@
+from datetime import datetime, timedelta
 from include.aws.aws_secret_manager import get_secret
 from include.aws.glue_job_submission import create_glue_job
 import os
 from dotenv import load_dotenv
 load_dotenv()
 
-schema = os.getenv("DATA_LAKE_SCHEMA")
+data_lake = os.getenv("DATA_LAKE_SCHEMA")
+data_staging = os.getenv("DATA_STAGING_SCHEMA")
+data_warehouse = os.getenv("DATA_WAREHOUSE_SCHEMA")
 
 def create_and_run_glue_job(job_name, script_path, arguments, Variables = None):
     s3_bucket = get_secret("AWS_S3_BUCKET_TABULAR")
@@ -66,9 +69,41 @@ def create_and_run_glue_job(job_name, script_path, arguments, Variables = None):
 #     arguments={'--output_table': f'{schema}.daily_news', '--ds': '2025-06-21'}
 # )
 
-local_script_path = os.path.join("include", "scripts/daily_run/daily_stock_price_extraction.py")
-create_and_run_glue_job(f'daily_stock_price_extraction_2',
+# local_script_path = os.path.join("include", "scripts/daily_run/daily_stock_price_extraction.py")
+# create_and_run_glue_job(f'daily_stock_price_extraction_2',
+#     script_path=local_script_path,
+#     arguments={'--output_table': f'{schema}.daily_stock_prices', '--ds': '2025-06-20'}
+# )
+# print("Overview fetched")
+
+run_date = datetime.strptime("2025-06-20", "%Y-%m-%d")
+# local_script_path = os.path.join("include", "scripts/transformation/staging/create_stg_ticker_prices_tbl.py")
+# create_and_run_glue_job(f'create_stg_ticker_prices_tbl',
+#     script_path=local_script_path,
+#     arguments={'--output_table': f'{data_staging}.stg_ticker_prices', '--ds': '2025-06-20'}
+# )
+# print("staging table created")
+
+# local_script_path = os.path.join("include", "scripts/transformation/staging/stg_ticker_prices.py")
+# create_and_run_glue_job(f'stg_ticker_prices',
+#     script_path=local_script_path,
+#     arguments={
+#         '--output_table': f'{data_staging}.stg_ticker_prices', 
+#         '--ds': '2025-06-20', 
+#         '--schema': data_lake, 
+#         '--branch': f'stg_daily_ticker_{run_date.strftime("%Y%m%d")}'
+#     }
+# )
+# print("staging transformation created")
+
+
+local_script_path = os.path.join("include", "scripts/transformation/warehouse/fct_daily_prices.py")
+create_and_run_glue_job(f'fct_daily_prices',
     script_path=local_script_path,
-    arguments={'--output_table': f'{schema}.daily_stock_prices', '--ds': '2025-06-20'}
+    arguments={
+        '--output_table': f'{data_warehouse}.moving_averages_tmp', 
+        '--ds': '2025-06-20', 
+        '--branch': f'stg_daily_ticker_{run_date.strftime("%Y%m%d")}',
+        '--stg_table': f'{data_staging}.stg_ticker_prices'
+    }
 )
-print("Overview fetched")
