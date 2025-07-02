@@ -3,3 +3,5 @@ capstone_venv/
 .env
 
 include.zip
+
+data

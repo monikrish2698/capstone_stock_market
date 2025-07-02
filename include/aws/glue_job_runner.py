@@ -14,7 +14,7 @@ data_mart = os.getenv("DATA_MART_SCHEMA")
 
 nyse_holidays = holidays.NYSE()
 
-def create_and_run_glue_job(job_name, script_path, arguments, Variables = None, include_to_s3 = False, include_path_zip = None):
+def create_and_run_glue_job(job_name, script_path, arguments, Variables = None, include_to_s3 = False, include_path_zip = None, include_csv = False, include_csv_path = None):
     s3_bucket = get_secret("AWS_S3_BUCKET_TABULAR")
     tabular_credential = get_secret("TABULAR_CREDENTIAL")
     catalog_name = get_secret("CATALOG_NAME")  # "eczachly-academy-warehouse"
@@ -36,9 +36,29 @@ def create_and_run_glue_job(job_name, script_path, arguments, Variables = None, 
                     polygon_credentials=polygon_credentials,
                     include_to_s3=include_to_s3,
                     include_path_zip=include_path_zip,
+                    include_csv=include_csv,
+                    include_csv_path=include_csv_path,
                     description="Glue job to load historical data"
                 )
-    
+
+# include_path_zip = os.path.join(".", "include.zip")
+# csv_path = os.path.join("data", 'sic_descriptions.csv')
+# local_script_path = os.path.join("include", 'scripts/historical/sic_description.py')
+# create_and_run_glue_job(f'sic_description', 
+#                         script_path=local_script_path, arguments={'--output_table': f'{data_lake}.sic_description'}, include_csv=True, include_csv_path=csv_path)
+
+local_script_path = os.path.join("include", 'scripts/transformation/warehouse/dim_tickers.py')
+create_and_run_glue_job(f'dim_tickers',
+                        script_path = local_script_path,
+                        arguments={
+                            '--output_table': f'{data_warehouse}.dim_tickers',
+                            '--ds': '2025-07-02',
+                            '--input_table': f'{data_lake}.all_tickers',
+                            '--overview': f'{data_lake}.overview',
+                            '--sic_description': f'{data_lake}.sic_description',
+                            '--ticker_types': f'{data_lake}.all_ticker_types'
+                        })
+
 # local_script_path = os.path.join("include", 'scripts/ingest_polygon_daily_aggregate_historical.py')
 # create_and_run_glue_job(f'historical_stocks_ingestion_monk', 
 #                         script_path=local_script_path,
@@ -72,17 +92,17 @@ def create_and_run_glue_job(job_name, script_path, arguments, Variables = None, 
 
 
 
-include_path_zip = os.path.join(".", "include.zip")
-local_script_path = os.path.join("include", "scripts/daily_run/daily_stock_news.py")
-create_and_run_glue_job(f'fetch_daily_news',
-    script_path=local_script_path,
-    include_to_s3=True,
-    include_path_zip=include_path_zip,
-    arguments={
-        '--output_table': f'{data_lake}.daily_news',
-        '--base_url': 'https://api.polygon.io/v2/reference/news',
-        '--ds': '2025-06-22'}
-)
+# include_path_zip = os.path.join(".", "include.zip")
+# local_script_path = os.path.join("include", "scripts/daily_run/daily_stock_news.py")
+# create_and_run_glue_job(f'fetch_daily_news',
+#     script_path=local_script_path,
+#     include_to_s3=True,
+#     include_path_zip=include_path_zip,
+#     arguments={
+#         '--output_table': f'{data_lake}.daily_news',
+#         '--base_url': 'https://api.polygon.io/v2/reference/news',
+#         '--ds': '2025-06-22'}
+# )
 
 # local_script_path = os.path.join("include", "scripts/periodical/tickers_overview.py")
 # create_and_run_glue_job(f'fetch_overview',
@@ -173,7 +193,7 @@ create_and_run_glue_job(f'fetch_daily_news',
 # local_script_path = os.path.join("include", "scripts/transformation/warehouse/fct_daily_news.py")
 # create_and_run_glue_job(f'fct_daily_news',
 #     script_path=local_script_path,
-#     arguments={'--output_table': f'{data_warehouse}.fct_daily_news', '--ds': '2025-06-21', '--schema': data_lake}
+#     arguments={'--output_table': f'{data_warehouse}.fct_daily_ticker_news', '--ds': '2025-06-21', '--input_table': f'{data_lake}.daily_news'}
 # )
 # print("staging table created")
 

@@ -17,7 +17,9 @@ create_table_query = f"""
         description STRING,
         keywords ARRAY<STRING>,
         tickers ARRAY<STRING>,
-        ticker_level_insights MAP<STRING, STRUCT<sentiment: STRING, sentiment_reasoning: STRING>>,
+        ticker STRING,
+        sentiment STRING,
+        sentiment_reasoning STRING,
         published_utc TIMESTAMP,
         date DATE
     )
@@ -29,28 +31,23 @@ spark.sql(create_table_query)
 df = spark.read.table(f"{input_table}").filter(col("extraction_date") == run_date)
 df.printSchema()
 
-transformed_df = df.withColumn("ticker_level_insights", 
-                               map_from_entries(
-                                   transform(
-                                       "insights",
-                                       lambda x: struct(
-                                           x["ticker"],
-                                           struct(
-                                               x["sentiment"].alias("sentiment"),
-                                               x["sentiment_reasoning"].alias("sentiment_reasoning")
-                                           )
-                                       )
-                                   )
-                               )).withColumn("date", to_date(lit(run_date)))
+exploded = (df.withColumn("insight", explode_outer("insights"))      # struct column
+      .withColumn("ticker",              col("insight.ticker"))
+      .withColumn("sentiment",           col("insight.sentiment"))
+      .withColumn("sentiment_reasoning", col("insight.sentiment_reasoning"))
+      .withColumn("date", to_date(lit(run_date)))
+      .drop("insight", "insights"))
 
-transformed_df = transformed_df.select(
+transformed_df = exploded.select(
     col("id"), 
     col("title"),
     col("article_url"),
     col("description"),
     col("keywords"),
     col("tickers"),
-    col("ticker_level_insights"),
+    col("ticker"),
+    col("sentiment"),
+    col("sentiment_reasoning"),
     col("published_utc").cast("timestamp"),
     col("date")
 )

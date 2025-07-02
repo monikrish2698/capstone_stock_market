@@ -60,8 +60,16 @@ def create_glue_job(
     polygon_credentials=None,
     include_to_s3 = False,
     include_path_zip = None,
+    include_csv = None,
+    include_csv_path = None,
     **kwargs
 ):
+    if include_csv:
+        print(f"Uploading include.csv to S3: {include_csv_path}")
+        include_csv = upload_to_s3(include_csv_path, s3_bucket, 'monk-data/' + include_csv_path)
+        if not include_csv:
+            raise ValueError('Uploading include.csv to S3 failed!!')
+
     if include_to_s3:
         include_path = upload_to_s3(include_path_zip, s3_bucket, 'monk-glue-libs/include.zip')
         if not include_path:
