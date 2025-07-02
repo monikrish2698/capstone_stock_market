@@ -4,3 +4,5 @@ requests
 astronomer-cosmos
 holidays
 apache-airflow-providers-amazon
+
+pyspark

@@ -3,6 +3,7 @@ from pyspark.sql.types import *
 from datetime import datetime
 import holidays
 
+from pyspark.sql import Column
 
 def mean_last_n (col_name: str, count_col : str, n: int) -> Column:
     """
