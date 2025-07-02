@@ -33,6 +33,7 @@ def get_daily_stock_prices():
     fct_daily_prices_path = os.path.join("include", "scripts/transformation/warehouse/fct_daily_price.py")
     fct_daily_news_path = os.path.join("include", "scripts/transformation/warehouse/fct_daily_news.py")
     dim_related_tickers_path = os.path.join("include", "scripts/transformation/warehouse/dim_related_tickers.py")
+    dim_tickers_path = os.path.join("include", "scripts/transformation/warehouse/dim_tickers.py")
 
     annualised_volatality_path = os.path.join("include", "scripts/transformation/data_marts/annualised_volatality.py")
     exponential_moving_avg_path = os.path.join("include", "scripts/transformation/data_marts/exponential_moving_avg.py")
@@ -158,6 +159,25 @@ def get_daily_stock_prices():
                 "--ds" : "{{ ds }}",
                 "--input_table" : "monk_data_lake.related_tickers",
                 "--output_table" : "monk_data_warehouse.dim_related_tickers"
+            }
+        },
+        provide_context = True
+    )
+
+    dim_tickers = PythonOperator(
+        task_id = "dim_tickers",
+        python_callable = create_glue_job,
+        op_kwargs = {
+            **common_kwargs,
+            "job_name" : "dim_tickers",
+            "script_path" : dim_tickers_path,
+            "arguments" : {
+                "--ds" : "{{ ds }}",
+                "--input_table" : "monk_data_lake.all_tickers",
+                "--output_table" : "monk_data_warehouse.dim_tickers",
+                "--overview" : "monk_data_lake.overview",
+                "--sic_description" : "monk_data_lake.sic_description",
+                "--ticker_types" : "monk_data_lake.all_ticker_types"
             }
         },
         provide_context = True
