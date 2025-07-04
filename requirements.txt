@@ -2,7 +2,7 @@ boto3
 python-dotenv
 requests
 astronomer-cosmos
-holidays
 apache-airflow-providers-amazon
-
 pyspark
+
+holidays

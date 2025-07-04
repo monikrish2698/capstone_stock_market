@@ -3,7 +3,7 @@ from include.aws.glue_job_init import init_glue_job
 from pyspark.sql.functions import *
 from pyspark.sql.types import *
 
-args, spark, glueContext = init_glue_job(["output_table", "ds", "input_table", "last_run_date"])
+args, spark, glueContext = init_glue_job(["output_table", "ds", "input_table", "last_run_date", "JOB_NAME"])
 
 output_table = args['output_table']
 run_date = args['ds']

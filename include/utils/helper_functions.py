@@ -35,4 +35,4 @@ def check_holiday(run_date):
     if execution_day >= 5 or execution_date in nyse_holidays:
         return 'skip_daily_run'
     else:
-        return 'load_stock_prices_daily'
+        return 'load_daily_stock_prices'

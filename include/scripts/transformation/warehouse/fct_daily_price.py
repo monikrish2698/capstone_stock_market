@@ -10,4 +10,4 @@ run_date = args['ds']
 branch = args['branch']
 
 spark.sql(f""" CALL system.fast_forward('{output_table}', 'main', '{branch}') """)
-spark.sql(f""" ALTER TABLE {output_table} DROP BRANCH {branch}""")
+spark.sql(f""" ALTER TABLE {output_table} DROP BRANCH `{branch}`""")

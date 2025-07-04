@@ -13,7 +13,10 @@ branch = args['branch']
 create_table_query = f"""
     CREATE TABLE IF NOT EXISTS {output_table}
     USING iceberg
-    PARTITIONED BY (date) AS
+    PARTITIONED BY (date)
+    TBLPROPERTIES (
+        'write.wap.enabled' = 'true'
+    ) AS
     SELECT
         CAST(null as STRING) as ticker,
         CAST(null as MAP<STRING, DOUBLE>) as aggregates,

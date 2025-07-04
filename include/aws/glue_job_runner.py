@@ -47,23 +47,41 @@ def create_and_run_glue_job(job_name, script_path, arguments, Variables = None, 
 # create_and_run_glue_job(f'sic_description', 
 #                         script_path=local_script_path, arguments={'--output_table': f'{data_lake}.sic_description'}, include_csv=True, include_csv_path=csv_path)
 
-local_script_path = os.path.join("include", 'scripts/transformation/warehouse/dim_tickers.py')
-create_and_run_glue_job(f'dim_tickers',
+# local_script_path = os.path.join("include", 'scripts/transformation/warehouse/dim_tickers.py')
+# create_and_run_glue_job(f'dim_tickers',
+#                         script_path = local_script_path,
+#                         arguments={
+#                             '--output_table': f'{data_warehouse}.dim_tickers',
+#                             '--ds': '2025-07-02',
+#                             '--input_table': f'{data_lake}.all_tickers',
+#                             '--overview': f'{data_lake}.overview',
+#                             '--sic_description': f'{data_lake}.sic_description',
+#                             '--ticker_types': f'{data_lake}.all_ticker_types'
+#                         })
+
+# local_script_path = os.path.join("include", 'scripts/old_scripts/drop_tables_command.py')
+# create_and_run_glue_job(f'drop_tables_command',
+#                         script_path = local_script_path,
+#                         arguments={
+#                             '--output_table': f'{data_lake}.historical_sma',
+#                         })
+
+local_script_path = os.path.join("include", 'scripts/historical/get_historical_ema.py')
+create_and_run_glue_job(f'get_historical_ema',
                         script_path = local_script_path,
                         arguments={
-                            '--output_table': f'{data_warehouse}.dim_tickers',
-                            '--ds': '2025-07-02',
-                            '--input_table': f'{data_lake}.all_tickers',
-                            '--overview': f'{data_lake}.overview',
-                            '--sic_description': f'{data_lake}.sic_description',
-                            '--ticker_types': f'{data_lake}.all_ticker_types'
+                            '--output_table': f'{data_lake}.historical_ema',
+                            '--date': '2025-03-01',
+                            '--input_table': f'{data_warehouse}.dim_tickers'
                         })
 
-local_script_path = os.path.join("include", 'scripts/old_scripts/drop_tables_command.py')
-create_and_run_glue_job(f'drop_tables_command',
+local_script_path = os.path.join("include", 'scripts/historical/get_historical_sma.py')
+create_and_run_glue_job(f'get_historical_sma',
                         script_path = local_script_path,
                         arguments={
-                            '--output_table': f'{data_warehouse}.fct_daily_news'
+                            '--output_table': f'{data_lake}.historical_sma',
+                            '--date': '2025-03-01',
+                            '--input_table': f'{data_warehouse}.dim_tickers'
                         })
 
 # local_script_path = os.path.join("include", 'scripts/ingest_polygon_daily_aggregate_historical.py')

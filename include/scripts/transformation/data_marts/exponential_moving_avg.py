@@ -3,7 +3,7 @@ from include.aws.glue_job_init import init_glue_job
 from pyspark.sql.functions import *
 from pyspark.sql.types import *
 
-args, spark, glueContext = init_glue_job(["output_table", "ds", "input_table", "last_run_date"])
+args, spark, glueContext = init_glue_job(["output_table", "ds", "input_table", "last_run_date", "JOB_NAME"])
 
 output_table = args['output_table']
 run_date = args['ds']
@@ -27,11 +27,11 @@ spark.sql(create_table_query)
 ema_cumulative_query = f"""
 with today_data as (
     select * from {input_table}
-    where date = '{run_date.date()}'
+    where date = '{run_date}'
 ),
 yesterday_data as (
     select * from {output_table}
-    where date = '{last_run_date.date()}'
+    where date = '{last_run_date}'
 ),
 cumulative_51_day_close_price as (
     select
@@ -40,7 +40,7 @@ cumulative_51_day_close_price as (
         y.26_day_ema as yesterday_26_day_ema,
         y.50_day_ema as yesterday_50_day_ema,
         slice(concat(array(t.aggregates['close']), coalesce(y.cumulative_51_day_close_price, array())), 1, 51) as cumulative_51_day_close_price,
-            CAST('{run_date.date()}' as DATE) as date
+            CAST('{run_date}' as DATE) as date
     from today_data t
     full outer join yesterday_data y on t.ticker = y.ticker
 ),

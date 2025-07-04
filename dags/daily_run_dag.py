@@ -13,7 +13,7 @@ from include.utils.get_common_config_values import common_kwargs
 
 @dag(
     description = "Daily dag that fetches stocks data from polygon API and transforms it to the data warehouse",
-    start_date = datetime(2025, 6, 23),
+    start_date = datetime(2025, 6, 20),
     schedule = "@daily",
     catchup = True,
     max_active_runs = 1,
@@ -79,7 +79,7 @@ def get_daily_stock_prices():
                 "--output_table" : "monk_data_warehouse.fct_daily_prices",
                 "--ds" : "{{ ds }}",
                 "--input_table" : "monk_data_lake.daily_stock_prices",
-                "--branch" : f"stg_stock_prices_branch_{{ ds }}"
+                "--branch" : "stg_stock_prices_branch_{{ ds }}"
             }
         },
         provide_context = True
@@ -94,7 +94,7 @@ def get_daily_stock_prices():
             "arguments" : {
                 "--ds" : "{{ ds }}",
                 "--input_table" : "monk_data_warehouse.fct_daily_prices",
-                 "--branch" : f"stg_stock_prices_branch_{{ ds }}"
+                 "--branch" : "stg_stock_prices_branch_{{ ds }}"
             }
         },
         provide_context = True
@@ -110,7 +110,7 @@ def get_daily_stock_prices():
             "arguments" : {
                 "--ds" : "{{ ds }}",
                 "--output_table" : "monk_data_warehouse.fct_daily_prices",
-                "--branch" : f"stg_stock_prices_branch_{{ ds }}"
+                "--branch" : "stg_stock_prices_branch_{{ ds }}"
             }
         },
         provide_context = True
@@ -127,7 +127,7 @@ def get_daily_stock_prices():
                 "--ds" : "{{ ds }}",
                 "--input_table" : "monk_data_mart.exponential_moving_averages",
                 "--output_table" : "monk_data_mart.macd_crossover",
-                "--last_run_date" : "{{ prev_data_interval_end_success }}"
+                "--last_run_date" : "{{ (prev_data_interval_end_success.to_date_string() if prev_data_interval_end_success else '1970-01-01')}}"
             }
         },
         provide_context = True
@@ -136,7 +136,6 @@ def get_daily_stock_prices():
 
 
     with TaskGroup(group_id = "technical_indicators_calculations") as technical_indicators_calculations:
-
         annualised_volatality = PythonOperator(
             task_id = "annualised_volatality",
             python_callable = create_glue_job,
@@ -148,7 +147,7 @@ def get_daily_stock_prices():
                     "--ds" : "{{ ds }}",
                     "--input_table" : "monk_data_warehouse.fct_daily_prices",
                     "--output_table" : "monk_data_mart.annualised_volatality",
-                    "--last_run_date" : "{{ prev_data_interval_end_success }}"
+                    "--last_run_date" : "{{ (prev_data_interval_end_success.to_date_string() if prev_data_interval_end_success else '1970-01-01')}}"
                 }
             },
             provide_context = True
@@ -165,7 +164,7 @@ def get_daily_stock_prices():
                     "--ds" : "{{ ds }}",
                     "--input_table" : "monk_data_warehouse.fct_daily_prices",
                     "--output_table" : "monk_data_mart.exponential_moving_averages",
-                    "--last_run_date" : "{{ prev_data_interval_end_success }}"
+                    "--last_run_date" : "{{ (prev_data_interval_end_success.to_date_string() if prev_data_interval_end_success else '1970-01-01') }}"
                 }
             },
             provide_context = True
@@ -182,7 +181,7 @@ def get_daily_stock_prices():
                     "--ds" : "{{ ds }}",
                     "--input_table" : "monk_data_warehouse.fct_daily_prices",
                     "--output_table" : "monk_data_mart.simple_moving_averages",
-                    "--last_run_date" : "{{ prev_data_interval_end_success }}"
+                    "--last_run_date" : "{{ (prev_data_interval_end_success.to_date_string() if prev_data_interval_end_success else '1970-01-01') }}"
                 }
             },
             provide_context = True
