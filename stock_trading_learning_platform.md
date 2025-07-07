@@ -113,6 +113,134 @@ Automatically generates SQL queries to fetch relevant data as defined by the pla
 **Education Consultant Agent** <br>
 Uses the retrieved data to generate educational, explanatory responses. Ensures answers are strictly educational—avoiding profit-focused or speculative advice.
 
+## Technologies Used
+The end-to-end flow of the project is built using a comprehensive set of tools and technologies. 
+
+**Apache Spark (with AWS Glue)**
+- *Purpose:* Handles both historical and daily batch processing of large datasets, as well as data transformation.
+- *Reason for Choice:* Spark offers robust distributed data processing, and AWS Glue manages, scales, and orchestrates ETL workflows with minimal overhead.
+
+**Apache Airflow**
+- *Purpose:* Manages, schedules, and monitors complex data pipelines.
+- *Reason for Choice:* Airflow’s flexibility and reliability enable seamless workflow orchestration across all stages of the data pipeline.
+
+**Tabular Iceberg**
+- *Purpose:* Stores ingested and processed data using the open-source Iceberg table format.
+- *Reason for Choice:* Iceberg’s ACID compliance, schema evolution, and partitioning features make it ideal for large-scale, analytical data storage.
+
+**Streamlit**
+- *Purpose:* Provides the interactive, visual dashboard for end users.
+- *Reason for Choice:* Streamlit allows rapid application development in Python, making it easy to build rich, interactive UIs—including chat interfaces—without frontend expertise.
+
+**PyIceberg + DuckDB**
+- *Purpose:* Enables efficient access, filtering, and analysis of large Iceberg tables directly in Python.
+* *Reason for Choice:*
+  - PyIceberg: Lets you filter and load only necessary data from massive datasets, optimizing memory usage.
+  - DuckDB: Allows SQL-based analytics on in-memory data, integrates seamlessly with Python (e.g., Pandas DataFrames), and supports advanced operations like top-N queries, statistical tests, and outlier detection—all without heavy infrastructure. To perform aggrgation at industry level, I used duckdb which allowed simple SQL based aggregation.
+
+**FastAPI**
+*Purpose:* Powers the backend API for LLM agent orchestration and user interactions.
+*Reason for Choice:* FastAPI provides high-performance, asynchronous API endpoints, making it ideal for serving AI-driven chat features with low latency. Also to simulate a real chat like scenario, FastAPI has streaming features which allows to generate responses and simulataneously show on the streamlit Ui.
+
+## Historical Data Processing
+
+**Initial Data Loading**
+* Imported historical OHLCV data from flat CSV files dating back to January 2021.
+* Created the core fact tables (e.g., daily prices) using a one time data loader script
+* code can be found in : ```include/eczachly/scripts/create_fct_prices_table.py```
+
+**Simple Moving Averages (SMA)**
+* Calculated historical SMA values directly using Trino queries, leveraging SQL window functions for efficient computation over the historical data.
+
+```
+create or replace table monishk37608.dm_simple_moving_averages
+WITH (
+  format = 'PARQUET',
+  partitioning = ARRAY['date']
+) AS
+WITH base AS (
+  SELECT
+    ticker,
+    date,
+    aggregates['close'] as close
+  FROM monk_data_warehouse.fct_daily_stock_prices
+  where ticker is not null
+),
+windowed AS (
+  SELECT
+    ticker,
+    date,
+    array_agg(close)
+  OVER (
+    PARTITION BY ticker
+    ORDER BY date DESC
+    ROWS BETWEEN CURRENT ROW AND 199 FOLLOWING
+  ) AS cumulative_200_day_close_price,
+    -- 5-day moving average
+    avg(close)
+      OVER (
+        PARTITION BY ticker
+        ORDER BY date
+        ROWS BETWEEN 4 PRECEDING AND CURRENT ROW
+      ) AS cumulative_5_day_ma,
+
+    -- 20-day moving average
+    avg(close)
+      OVER (
+        PARTITION BY ticker
+        ORDER BY date
+        ROWS BETWEEN 19 PRECEDING AND CURRENT ROW
+      ) AS cumulative_20_day_ma,
+
+    -- 50-day moving average
+    avg(close)
+      OVER (
+        PARTITION BY ticker
+        ORDER BY date
+        ROWS BETWEEN 49 PRECEDING AND CURRENT ROW
+      ) AS cumulative_50_day_ma,
+
+    -- 100-day moving average
+    avg(close)
+      OVER (
+        PARTITION BY ticker
+        ORDER BY date
+        ROWS BETWEEN 99 PRECEDING AND CURRENT ROW
+      ) AS cumulative_100_day_ma,
+
+    -- 200-day moving average
+    avg(close)
+      OVER (
+        PARTITION BY ticker
+        ORDER BY date
+        ROWS BETWEEN 199 PRECEDING AND CURRENT ROW
+      ) AS cumulative_200_day_ma
+
+  FROM base
+)
+SELECT
+  ticker,
+  date,
+  cumulative_200_day_close_price,
+  cumulative_5_day_ma,
+  cumulative_20_day_ma,
+  cumulative_50_day_ma,
+  cumulative_100_day_ma,
+  cumulative_200_day_ma
+FROM windowed
+ORDER BY ticker, date desc
+```
+**Complex Technical Indicators**
+* For more advanced indicators—Exponential Moving Average (EMA), Annualized Volatility, and MACD—direct SQL approaches proved insufficient due to the complexity of recursive calculations and Starburst’s query limitations.
+* Addressed this by developing a dedicated Airflow DAG, processing data from April 1, 2025, to June 30, 2025.
+* This approach enabled robust, scalable computation of advanced indicators over a three-month window, ensuring accuracy and reliability for downstream analytics and visualization.
+* code can be found in : ```dags/technical_indicators.py```
+
+![image](https://github.com/user-attachments/assets/87d531d5-e9b4-4f67-a279-39f5593113ca)
+
+
+
+
 
 
 
