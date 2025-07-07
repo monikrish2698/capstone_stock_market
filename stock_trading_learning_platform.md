@@ -312,6 +312,8 @@ To ensure that errorneous data is not ingested in the data warehouse, comprehens
 ### Write-Audit-Publish Pattern 
 To ensure data reliability and enable safe, atomic updates, Write Audit Publish (WAP) pattern is implemented with Iceberg’s branching strategy. This approach allows new data to be written and thoroughly validated on an isolated branch before being published to the main production table. As a result, only data that passes all quality and audit checks is merged, significantly reducing the risk of data corruption or incomplete ingestions in the warehouse.
 
+**PR:** https://github.com/DataExpert-io/airflow-dbt-project/pull/264
+
 ## Technical Indicators
 This project emphasizes five foundational technical indicators, each serving as a building block for traders aiming to develop a strong understanding of market dynamics before engaging in active trading:
 
