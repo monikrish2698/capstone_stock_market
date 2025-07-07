@@ -72,7 +72,8 @@ The project is structured around two distinct architectures:
 
 ### Data Flow Architecture
 
-![Screenshot 2025-07-07 at 9 53 38 AM](https://github.com/user-attachments/assets/62be331b-72ba-43a8-a1ad-da072c7d2ecc)
+![image](https://github.com/user-attachments/assets/16b567c5-863c-447b-a2c6-fcad226af7f9)
+
 
 **Ingestion Layer**
 - Historical data ingestion from AWS S3 using AWS Glue and PySpark, orchestrated by Apache Airflow.
