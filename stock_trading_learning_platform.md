@@ -717,7 +717,7 @@ Trading is as much an art as it is a science, requiring both intuition and a str
 While the future may bring about AI systems that can invest autonomously based on user preferences, it’s vital to remember the importance of personal oversight—especially when dealing with one’s hard-earned money. Large Language Models are developed and trained by organizations with their own approaches and data, which means their guidance may not always be transparent or perfectly aligned with individual needs. Therefore, having foundational knowledge is indispensable. This project is designed to be a step in that direction: equipping users with the education and tools needed to participate in the markets wisely and responsibly, always keeping control in their own hands.
 
 ## Repository Links
-* LLM Chat API repository - [https://github.com/monikrish2698/stock-chat/tree/chat_stock_feature/db_assistant_api/db_assistant](https://github.com/monikrish2698/stock-chat/tree/chat_stock_feature)
+* LLM Chat API repository - https://github.com/monikrish2698/stock-chat/tree/chat_stock_feature
 * Streamlit repository - https://github.com/monikrish2698/stock-visualisation/tree/visualisation_development 
 
 
