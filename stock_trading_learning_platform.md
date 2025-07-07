@@ -74,7 +74,6 @@ The project is structured around two distinct architectures:
 
 ![image](https://github.com/user-attachments/assets/16b567c5-863c-447b-a2c6-fcad226af7f9)
 
-
 **Ingestion Layer**
 - Historical data ingestion from AWS S3 using AWS Glue and PySpark, orchestrated by Apache Airflow.
 - Daily batch ingestion managed via AWS Glue with PySpark, also orchestrated using Apache Airflow.
