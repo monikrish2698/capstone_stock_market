@@ -74,4 +74,43 @@ The project is structured around two distinct architectures:
 
 ![Screenshot 2025-07-07 at 9 53 38 AM](https://github.com/user-attachments/assets/62be331b-72ba-43a8-a1ad-da072c7d2ecc)
 
+**Ingestion Layer**
+- Historical data ingestion from AWS S3 using AWS Glue and PySpark, orchestrated by Apache Airflow.
+- Daily batch ingestion managed via AWS Glue with PySpark, also orchestrated using Apache Airflow.
+
+**Database Layer (Medallion Approach)**
+- Bronze Layer: Raw data ingestion stored in the monk_data_lake schema, containing tables such as daily stock prices, news, ticker details, ticker types, ticker overview, and SIC descriptions.
+- Silver Layer: Refined, structured data stored in the monk_data_warehouse schema, containing fact and dimension tables (fct_daily_stock_prices, fct_daily_news, dim_tickers).
+- Gold Layer: Analytical-friendly tables in schema monishk37608, containing derived metrics (e.g., moving averages, MACD crossovers, annualized volatility).
+
+**Visualization Layer**
+- Built using Streamlit, DuckDB, and PyIceberg for interactive dashboard visualizations and analytics.
+- Enables intuitive visual exploration and querying of stock market data.
+
+This follows the Medallion Architecture, ensuring structured data progression from raw ingestion (bronze) through refined processing (silver) to analytics-ready data (gold).
+
+### LLM Agent Architecture
+
+![image](https://github.com/user-attachments/assets/2a1cba45-85ec-458e-bfe3-12a69a98e6ca)
+
+FastAPI-Based Communication Layer - Provides a robust API to interact with all LLM agents and manage user queries efficiently.
+
+**Intent Detection Agent** <br>
+Classifies user queries into categories:
+- General Knowledge (GK): Definition of trading terms and technical indicators.
+- Market Analysis (MA): Analysis of specific stocks/groups based on dashboard data, market cap, industry, and performance over time.
+- Trading Advice (TA): Direct trading recommendations (filtered out to keep platform educational).
+- Irrelevant Information (II): Non-equity/trading-related queries. <br>
+
+Supports combined categories (e.g., GK, MA) for nuanced queries.
+
+**Data Retrieval Planner Agent** <br>
+Plans and lists all necessary data-fetching steps based on query intent and metadata.
+
+**PrestoSQL Query Builder Agent** <br>
+Automatically generates SQL queries to fetch relevant data as defined by the planner. The generated PrestSQL is executed using a trino query engine to fetch the relevant data from the data warehouse and data marts.
+
+**Education Consultant Agent** <br>
+Uses the retrieved data to generate educational, explanatory responses. Ensures answers are strictly educational—avoiding profit-focused or speculative advice.
+
 
