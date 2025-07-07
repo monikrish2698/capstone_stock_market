@@ -365,8 +365,12 @@ This project emphasizes five foundational technical indicators, each serving as 
 ![image](https://github.com/user-attachments/assets/9f9df8ea-e8c3-49ed-9cbc-8c20574020f8)
 *figure desc: Chart depicting Annualised Volatlity*
 
+## Large Language Model Integration
 
 
+![image](https://github.com/user-attachments/assets/15a840bf-d52c-4ed6-b219-f2f45fc54a77)
+
+![image](https://github.com/user-attachments/assets/81f3e934-68af-4776-838b-641f31c67671)
 
 
 
