@@ -9,18 +9,26 @@ Recognising this gap, the primary objective of this capstone project is to devel
 - [Motivation](#motivation)
 - [Problem Statement](#problem-statement)
 - [Platform Overview](#platform-overview)
-- [Architecture Overview](#architecture-overview)
-- [Technologies Used](#technologies-used)
-- [Real-time Analytics Architecture](#real-time-analytics-architecture-deep-dive)
-  - [Real-time Data Flow](#real-time-data-flow)
-  - [Key Components of the Code](#key-components-of-the-code-for-real-time-processing)
-  - [Real-time Dashboards Overview](#real-time-dashboards-overview)
+- [Data Sources](#data-sources)
+- [Architecture](#architecture)
+  - [Data Flow Architecture](#data-flow-architecture)
+  - [LLM Agent Architecture](#llm-agent-architecture)
 - [Historical Data Processing](#historical-data-processing)
-- [Data Transformation with dbt](#data-transformation-with-dbt)
-- [Technical Analysis Indicators](#technical-analysis-indicators)
+- [Daily Data Processing](#daily-data-processing)
+  - [Overview](#overview)
+  - [Data Quality Checks](#data-quality-checks)
+  - [Write-Audit-Publish Pattern](#write-audit-publish-pattern)
+  - [Cumulative Table Design](#cumulative-table-design)
+- [Technical Indicators](#technical-indicators)
+  - [Using Indicators in Combination](#using-indicators-in-combination) 
+- [Large Language Model Integration](#large-language-model-integration)
+  - [LLM Responses for various user queries](#llm-responses-for-various-user-queries)
+  - [Technical Implementation](#technical-implementation)
+  - [API defintion](#api-defintion)
 - [Challenges](#challenges)
 - [Future Enhancements](#future-enhancements)
-- [Conclusion](#conclusion)
+- [Concluding Remarks](#concluding-remarks)
+- 
 
 ## Motivation
 As a long-term stocks trader, my personal journey in trading sparked a keen interest in exploring different trading methods. Initially, learning trading concepts seemed overwhelming and confusing, with scattered information from YouTube videos often failing to translate into actionable insights. However, the introduction of Large Language Models (LLMs) transformed my learning experience by simplifying complex concepts with straightforward explanations and relevant practical examples.
@@ -330,6 +338,9 @@ To ensure that errorneous data is not ingested in the data warehouse, comprehens
 ### Write-Audit-Publish Pattern 
 To ensure data reliability and enable safe, atomic updates, Write Audit Publish (WAP) pattern is implemented with Iceberg’s branching strategy. This approach allows new data to be written and thoroughly validated on an isolated branch before being published to the main production table. As a result, only data that passes all quality and audit checks is merged, significantly reducing the risk of data corruption or incomplete ingestions in the warehouse.
 
+### Cumulative Table Design
+A cumulative table stores running totals or aggregations of a metric over time—such as cumulative returns, moving averages, or rolling sums—making it efficient to query time-series metrics without recalculating them on the fly. Technical indicators like Simple Moving Averages, Exponential Moving Averages, MACD Indicators and Annualised Volatlity has cumulative table design pattern implemented.
+
 **PR:** [https://github.com/DataExpert-io/airflow-dbt-project/pull/264](https://github.com/DataExpert-io/airflow-dbt-project/tree/monk_capstone)
 
 ## Technical Indicators
@@ -600,7 +611,7 @@ To help users grasp fundamental trading concepts through natural language, the p
         ## DATA:
         {data}
    ```
-### LLM Responses for various user queries:
+### LLM Responses for various user queries
 1. When the user asked about explaining the concept of low lows and high highs:
 
 ![image](https://github.com/user-attachments/assets/15a840bf-d52c-4ed6-b219-f2f45fc54a77)
@@ -702,8 +713,7 @@ Trading is as much an art as it is a science, requiring both intuition and a str
 
 While the future may bring about AI systems that can invest autonomously based on user preferences, it’s vital to remember the importance of personal oversight—especially when dealing with one’s hard-earned money. Large Language Models are developed and trained by organizations with their own approaches and data, which means their guidance may not always be transparent or perfectly aligned with individual needs. Therefore, having foundational knowledge is indispensable. This project is designed to be a step in that direction: equipping users with the education and tools needed to participate in the markets wisely and responsibly, always keeping control in their own hands.
 
-
-**Repository link** 
+## Repository Links
 
 
 
