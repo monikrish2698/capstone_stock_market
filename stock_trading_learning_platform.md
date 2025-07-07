@@ -4,6 +4,24 @@ The surge in retail participation in stock markets globally, particularly in Ind
 
 Recognising this gap, the primary objective of this capstone project is to develop an interactive and beginner-friendly dashboard with an AI support. This dashboard also includes an LLM-based chat feature, allowing users to ask questions and receive immediate clarity on various financial topics. This educational tool aims to empower novice traders—including both short-term and long-term traders— by clearly presenting key stock market fundamentals, thus promoting informed decision-making and significantly mitigating uninformed trading practices. Ultimately, this initiative seeks to foster a more knowledgeable and disciplined retail investor community.
 
+## Table of Contents
+
+- [Motivation](#motivation)
+- [Problem Statement](#problem-statement)
+- [Platform Overview](#platform-overview)
+- [Architecture Overview](#architecture-overview)
+- [Technologies Used](#technologies-used)
+- [Real-time Analytics Architecture](#real-time-analytics-architecture-deep-dive)
+  - [Real-time Data Flow](#real-time-data-flow)
+  - [Key Components of the Code](#key-components-of-the-code-for-real-time-processing)
+  - [Real-time Dashboards Overview](#real-time-dashboards-overview)
+- [Historical Data Processing](#historical-data-processing)
+- [Data Transformation with dbt](#data-transformation-with-dbt)
+- [Technical Analysis Indicators](#technical-analysis-indicators)
+- [Challenges](#challenges)
+- [Future Enhancements](#future-enhancements)
+- [Conclusion](#conclusion)
+
 ## Motivation
 As a long-term stocks trader, my personal journey in trading sparked a keen interest in exploring different trading methods. Initially, learning trading concepts seemed overwhelming and confusing, with scattered information from YouTube videos often failing to translate into actionable insights. However, the introduction of Large Language Models (LLMs) transformed my learning experience by simplifying complex concepts with straightforward explanations and relevant practical examples.
 
@@ -312,7 +330,7 @@ To ensure that errorneous data is not ingested in the data warehouse, comprehens
 ### Write-Audit-Publish Pattern 
 To ensure data reliability and enable safe, atomic updates, Write Audit Publish (WAP) pattern is implemented with Iceberg’s branching strategy. This approach allows new data to be written and thoroughly validated on an isolated branch before being published to the main production table. As a result, only data that passes all quality and audit checks is merged, significantly reducing the risk of data corruption or incomplete ingestions in the warehouse.
 
-**PR:** https://github.com/DataExpert-io/airflow-dbt-project/pull/264
+**PR:** [https://github.com/DataExpert-io/airflow-dbt-project/pull/264](https://github.com/DataExpert-io/airflow-dbt-project/tree/monk_capstone)
 
 ## Technical Indicators
 This project emphasizes five foundational technical indicators, each serving as a building block for traders aiming to develop a strong understanding of market dynamics before engaging in active trading:
@@ -609,8 +627,83 @@ To help users grasp fundamental trading concepts through natural language, the p
 ![image](https://github.com/user-attachments/assets/42f4262d-1eec-41be-a05a-de41ad5651aa)
 *figure desc: the agent reasoning process for query 3*
 
+### Technical Implementation
+The backend API is designed following a layered architecture—sometimes referred to as a service-oriented or multi-tier architecture—dividing the application into distinct and reusable layers for improved clarity and maintainability.
+
+**1. Models Layer:**
+This layer is responsible for defining all data structures using Pydantic models. It enforces type validation, data integrity, and ensures that incoming requests and outgoing responses adhere to the expected schema. Models handle user queries, chat messages, and agent responses, minimizing the risk of data inconsistencies and runtime errors.
+
+**2. Routes Layer:**
+The routes layer (also known as the controller layer) defines the REST API endpoints using FastAPI. Each route acts as the main entry point for the application, receiving HTTP requests from the frontend (such as the Streamlit dashboard). Routes are responsible for parsing and validating request data using the models layer, and then delegating business logic tasks to the appropriate services. This clear division keeps endpoint functions concise and focused on request handling rather than internal logic.
+
+**3. Services Layer:**
+The services layer encapsulates the core business logic, orchestrating workflows that may span multiple agents or data sources. For this project, the services layer manages:
+- Intent classification through the LLM agent
+- Data retrieval planning based on intent and metadata
+- PrestoSQL query generation and execution using a Trino engine
+- Result formatting and explanation through the education consultant agent
+
+This separation makes it easier to test, update, and extend business logic without affecting the API routes or data models.
+
+### API defintion
+**endpoint** https::/<host>/chat 
+**method** POST
+**request body**
+![image](https://github.com/user-attachments/assets/7cd5a0f2-f7e8-4b03-b7f3-aebfcf9afec2)
 
 
+
+## Challenges
+1. Integrating Streamlit with PyIceberg presented some initial challenges. Table scans performed by PyIceberg often took over 60 seconds, and the data retrieval time increased proportionally with larger date ranges in the visualizations. Before settling on DuckDB, other options like Daft and Polars dataframes—both known for their speed relative to pandas—were tested. However, incorporating DuckDB ultimately provided the most significant improvement, substantially reducing data loading times for the dashboard. Additionally, Streamlit’s built-in caching mechanism played a crucial role in further optimizing performance. By caching the results of expensive data retrieval and transformation operations, repeated queries for the same data could be served instantly without triggering redundant computations or scans. The combination of DuckDB for efficient in-memory SQL operations and Streamlit’s caching ensured that data retrieval and visualization were both fast and responsive, even as users explored larger date ranges or more complex queries.
+
+![image](https://github.com/user-attachments/assets/84a15029-0672-4c38-9176-c0a030a49927)
+*figure desc: screenshot of using duckdb for in-memory processing*
+
+2. Another key challenge was implementing real-time streaming responses for the chat interface. While enabling streaming in FastAPI was straightforward thanks to its built-in support for asynchronous and generator-based responses, integrating this functionality with Streamlit proved more complex. Streamlit does not natively support consuming streaming HTTP responses out-of-the-box, so it took additional effort to design a client-side solution that could receive and display FastAPI’s streamed outputs in real time. Overcoming this integration hurdle was essential for delivering a smooth, conversational experience within the dashboard.
+
+![image](https://github.com/user-attachments/assets/739a9e66-12fc-42a5-b27a-40683b18be93)
+*figure desc: screenshot of the logic implemented on streamlit for handling streaming responses*
+
+3. Developing the chat feature was an iterative process that required significant experimentation and refinement. Designing and ideating for each agent—such as intent detection, data retrieval planning, SQL generation, and educational response—took considerable time and effort. The SQL generator agent, in particular, posed challenges, as it frequently produced incorrect queries despite the presence of multiple guardrails. Through extensive testing, prompt engineering, and continuous iteration, the functionality was eventually segmented into specialized agents. This modular approach improved both reliability and maintainability of the chat feature.
+
+## Future Enhancements
+1. **Chat Memory and Context Preservation**
+Currently, the chat interface does not store conversation history, resulting in stateless sessions where previous messages are not remembered. Implementing a Redis-based storage solution keyed by Streamlit session IDs would enable persistent chat memory, allowing users to engage in more natural, context-aware conversations. This would improve the continuity and personalization of the user experience.
+
+2. **Agent Orchestration Using Model Context Protocol (MCP)**
+Presently, agents operate in a linear pipeline—every user query sequentially passes through all agents regardless of intent, which can cause unnecessary processing and increased latency. Adopting the Model Context Protocol (MCP), an open standard developed by Anthropic, would standardize and streamline agent communication. With MCP, agents could dynamically decide which components to invoke next based on the query’s context, intent, and prior state, creating a more efficient and intelligent orchestration layer. For example, if a user’s question is identified as financial advice, the system could immediately route the query to the appropriate handling agent, bypassing unnecessary steps and reducing response times.
+
+3. **Dynamic Metadata Management**
+At present, metadata is embedded directly within prompts, requiring manual updates whenever underlying data structures change. In future iterations, metadata should be dynamically fetched from the database, enabling the platform to automatically detect and adapt to schema or data source modifications without manual intervention.
+
+4. **Intelligent News Analysis**
+The fact_news table contains URLs to news articles relevant to stocks, but these articles are not yet analyzed by the AI. Integrating natural language processing models to read, summarize, and extract insights from these news articles would greatly enhance the analytical depth and provide users with timely, AI-driven news intelligence directly within the dashboard.
+
+5. **Model Localisation through Retraining**
+Enhancing agent performance and relevance by retraining models on localized content—such as trading videos, region-specific articles, and contextually relevant datasets—would ensure that responses are more tailored to the needs of the platform’s user base.
+
+6. **Expansion to Other Asset Classes**
+While the current platform focuses on stocks, future enhancements could include additional investable assets such as bonds, mutual funds, ETFs, and commodities, broadening the educational value and utility of the platform.
+
+7. **Transition to Active Trading Support**
+Evolving from a purely educational tool, the platform could be extended to facilitate active trading, where AI-powered features not only educate but also assist users in making real-time investment decisions, while maintaining compliance and risk management safeguards.
+
+8. **Frontend Migration for Enhanced UX**
+Although Streamlit has enabled rapid prototyping and visualization, migrating to a robust frontend framework like Angular or React could significantly improve user experience, scalability, and customization, supporting a more polished and interactive interface.
+
+9. **Real-Time Data Integration and Trading Support**
+Integrating real-time market data would allow users to move beyond historical analysis and gain experience with live trading conditions. This sets the stage for evolving the platform from an educational tool to an active trading assistant—where AI not only educates but also helps users make informed, real-time investment decisions, all while maintaining robust compliance and risk controls.
+
+10. **Expansion of Dashboard Metrics and User Tracking**
+Adding more advanced financial metrics—such as Relative Strength Index (RSI), Bollinger Bands, sector correlations, or portfolio performance—would provide users with deeper insights into market movements. Allowing users to select, customize, and track these metrics directly from the dashboard would make the platform more interactive and tailored to individual learning goals.
+
+## Concluding Remarks
+Trading is as much an art as it is a science, requiring both intuition and a strong grasp of fundamentals. With the integration of AI-driven features on this platform, learning the basics and building confidence as a trader becomes far more accessible. The ultimate goal is to empower users to make informed investment decisions—decisions that not only have the potential for profit but are also made with clarity and self-assurance.
+
+While the future may bring about AI systems that can invest autonomously based on user preferences, it’s vital to remember the importance of personal oversight—especially when dealing with one’s hard-earned money. Large Language Models are developed and trained by organizations with their own approaches and data, which means their guidance may not always be transparent or perfectly aligned with individual needs. Therefore, having foundational knowledge is indispensable. This project is designed to be a step in that direction: equipping users with the education and tools needed to participate in the markets wisely and responsibly, always keeping control in their own hands.
+
+
+**Repository link** 
 
 
 
