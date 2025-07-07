@@ -117,7 +117,7 @@ This follows the Medallion Architecture, ensuring structured data progression fr
 
 ### LLM Agent Architecture
 
-![image](https://github.com/user-attachments/assets/2a1cba45-85ec-458e-bfe3-12a69a98e6ca)
+![image](https://github.com/user-attachments/assets/d6e50954-d81f-4515-9803-be6b7988249f)
 
 FastAPI-Based Communication Layer - Provides a robust API to interact with all LLM agents and manage user queries efficiently.
 
@@ -662,17 +662,20 @@ This separation makes it easier to test, update, and extend business logic witho
 **request body**
 ![image](https://github.com/user-attachments/assets/7cd5a0f2-f7e8-4b03-b7f3-aebfcf9afec2)
 
+*figure desc: request body pydantic model*
 
 
 ## Challenges
 1. Integrating Streamlit with PyIceberg presented some initial challenges. Table scans performed by PyIceberg often took over 60 seconds, and the data retrieval time increased proportionally with larger date ranges in the visualizations. Before settling on DuckDB, other options like Daft and Polars dataframes—both known for their speed relative to pandas—were tested. However, incorporating DuckDB ultimately provided the most significant improvement, substantially reducing data loading times for the dashboard. Additionally, Streamlit’s built-in caching mechanism played a crucial role in further optimizing performance. By caching the results of expensive data retrieval and transformation operations, repeated queries for the same data could be served instantly without triggering redundant computations or scans. The combination of DuckDB for efficient in-memory SQL operations and Streamlit’s caching ensured that data retrieval and visualization were both fast and responsive, even as users explored larger date ranges or more complex queries.
 
 ![image](https://github.com/user-attachments/assets/84a15029-0672-4c38-9176-c0a030a49927)
+
 *figure desc: screenshot of using duckdb for in-memory processing*
 
 2. Another key challenge was implementing real-time streaming responses for the chat interface. While enabling streaming in FastAPI was straightforward thanks to its built-in support for asynchronous and generator-based responses, integrating this functionality with Streamlit proved more complex. Streamlit does not natively support consuming streaming HTTP responses out-of-the-box, so it took additional effort to design a client-side solution that could receive and display FastAPI’s streamed outputs in real time. Overcoming this integration hurdle was essential for delivering a smooth, conversational experience within the dashboard.
 
 ![image](https://github.com/user-attachments/assets/739a9e66-12fc-42a5-b27a-40683b18be93)
+
 *figure desc: screenshot of the logic implemented on streamlit for handling streaming responses*
 
 3. Developing the chat feature was an iterative process that required significant experimentation and refinement. Designing and ideating for each agent—such as intent detection, data retrieval planning, SQL generation, and educational response—took considerable time and effort. The SQL generator agent, in particular, posed challenges, as it frequently produced incorrect queries despite the presence of multiple guardrails. Through extensive testing, prompt engineering, and continuous iteration, the functionality was eventually segmented into specialized agents. This modular approach improved both reliability and maintainability of the chat feature.
