@@ -252,7 +252,6 @@ code for the dag can be found in : ```dags/technical_indicators.py```
 *figure desc: Historical technical indicator successful DAG runs*
 
 
-<br>
 ![image](https://github.com/user-attachments/assets/51542ad0-b33d-4644-9550-627a83e6f8cd) 
 
 *figure desc: Historical technical indicator DAG graph*
