@@ -114,3 +114,5 @@ Automatically generates SQL queries to fetch relevant data as defined by the pla
 Uses the retrieved data to generate educational, explanatory responses. Ensures answers are strictly educational—avoiding profit-focused or speculative advice.
 
 
+
+
