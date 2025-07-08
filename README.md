@@ -6,29 +6,32 @@ Recognising this gap, the primary objective of this capstone project is to devel
 
 ## Table of Contents
 
-- [Motivation](#motivation)
-- [Problem Statement](#problem-statement)
-- [Platform Overview](#platform-overview)
-- [Data Sources](#data-sources)
-- [Architecture](#architecture)
-  - [Data Flow Architecture](#data-flow-architecture)
-  - [LLM Agent Architecture](#llm-agent-architecture)
-- [Historical Data Processing](#historical-data-processing)
-- [Daily Data Processing](#daily-data-processing)
-  - [Overview](#overview)
-  - [Data Quality Checks](#data-quality-checks)
-  - [Write-Audit-Publish Pattern](#write-audit-publish-pattern)
-  - [Cumulative Table Design](#cumulative-table-design)
-- [Technical Indicators](#technical-indicators)
-  - [Using Indicators in Combination](#using-indicators-in-combination) 
-- [Large Language Model Integration](#large-language-model-integration)
-  - [LLM Responses for various user queries](#llm-responses-for-various-user-queries)
-  - [Technical Implementation](#technical-implementation)
-  - [API defintion](#api-defintion)
-- [Challenges](#challenges)
-- [Future Enhancements](#future-enhancements)
-- [Concluding Remarks](#concluding-remarks)
-- [Repository Links](#repository-links)
+- [Stock Trading Learning Platform](#stock-trading-learning-platform)
+  - [Table of Contents](#table-of-contents)
+  - [Motivation](#motivation)
+  - [Problem Statement](#problem-statement)
+  - [Platform Overview](#platform-overview)
+  - [Data Sources](#data-sources)
+  - [Architecture](#architecture)
+    - [Data Flow Architecture](#data-flow-architecture)
+    - [LLM Agent Architecture](#llm-agent-architecture)
+  - [Technologies Used](#technologies-used)
+  - [Historical Data Processing](#historical-data-processing)
+  - [Daily Data Processing](#daily-data-processing)
+    - [Overview](#overview)
+    - [Data Quality Checks](#data-quality-checks)
+    - [Write-Audit-Publish Pattern](#write-audit-publish-pattern)
+    - [Cumulative Table Design](#cumulative-table-design)
+  - [Technical Indicators](#technical-indicators)
+    - [Using Indicators in Combination](#using-indicators-in-combination)
+  - [Large Language Model Integration](#large-language-model-integration)
+    - [LLM Responses for various user queries](#llm-responses-for-various-user-queries)
+    - [Technical Implementation](#technical-implementation)
+    - [API defintion](#api-defintion)
+  - [Challenges](#challenges)
+  - [Future Enhancements](#future-enhancements)
+  - [Concluding Remarks](#concluding-remarks)
+  - [Repository Links](#repository-links)
 
 ## Motivation
 As a long-term stocks trader, my personal journey in trading sparked a keen interest in exploring different trading methods. Initially, learning trading concepts seemed overwhelming and confusing, with scattered information from YouTube videos often failing to translate into actionable insights. However, the introduction of Large Language Models (LLMs) transformed my learning experience by simplifying complex concepts with straightforward explanations and relevant practical examples.
@@ -717,18 +720,5 @@ Trading is as much an art as it is a science, requiring both intuition and a str
 While the future may bring about AI systems that can invest autonomously based on user preferences, it’s vital to remember the importance of personal oversight—especially when dealing with one’s hard-earned money. Large Language Models are developed and trained by organizations with their own approaches and data, which means their guidance may not always be transparent or perfectly aligned with individual needs. Therefore, having foundational knowledge is indispensable. This project is designed to be a step in that direction: equipping users with the education and tools needed to participate in the markets wisely and responsibly, always keeping control in their own hands.
 
 ## Repository Links
-* LLM Chat API repository - https://github.com/monikrish2698/stock-chat/tree/chat_stock_feature
-* Streamlit repository - https://github.com/monikrish2698/stock-visualisation/tree/visualisation_development 
-
-
-
-
-
-
-
-
-
-
-
-
-
+* LLM Chat API repository - https://github.com/monikrish2698/stock-chat
+* Streamlit repository - [https://github.com/monikrish2698/stock-visualisation/tree/visualisation_development ](https://github.com/monikrish2698/stock-visualisation)
