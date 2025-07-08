@@ -3,6 +3,5 @@ python-dotenv
 requests
 astronomer-cosmos
 apache-airflow-providers-amazon
-pyspark
 
 holidays

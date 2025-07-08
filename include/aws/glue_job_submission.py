@@ -82,7 +82,8 @@ def create_glue_job(
     # we check to see if you passed in any --conf parameters to override the output table
     output_table = kwargs['dag_run'].conf.get('output_table', arguments.get('--output_table', '')) if 'dag_run' in kwargs else arguments.get('--output_table', '')
     arguments['--output_table'] = output_table
-
+    print(f"catalog_name: {catalog_name}")
+    print(f"tabular_credential: {tabular_credential}")
     spark_configurations = [
         f'spark.sql.extensions=org.apache.iceberg.spark.extensions.IcebergSparkSessionExtensions',
         f'spark.sql.defaultCatalog={catalog_name}',

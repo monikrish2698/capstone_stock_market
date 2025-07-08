@@ -29,7 +29,7 @@ create_table_query = f"""
 spark.sql(create_table_query)
 
 check_value_exists_query = f"""
-    select *, 12_day_ema - 26_day_ema as macd_value from {input_table}
+    select *, ema_12_day - ema_26_day as macd_value from {input_table}
     where date = '{run_date}'
 """
 
@@ -42,7 +42,7 @@ if check_val_df.count() > 0:
 
     macd_crossover_query = f"""
         with today_data as (
-            select *, 12_day_ema - 26_day_ema as macd_value from {input_table}
+            select *, ema_12_day - ema_26_day as macd_value from {input_table}
             where date = '{run_date}'
         ),
         yesterday_data as (

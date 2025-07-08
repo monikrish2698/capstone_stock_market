@@ -7,7 +7,7 @@ from datetime import datetime
 import os
 
 from include.aws.glue_job_submission import create_glue_job
-from include.utils.get_common_config_values import common_kwargs
+from airflow.models import Variable
 
 @dag(
     description = "Dag that fetch dimensional data from polygon API and transforms it to the data lake",
@@ -15,18 +15,31 @@ from include.utils.get_common_config_values import common_kwargs
     start_date = datetime(2025, 1, 1),
     catchup = False,
     max_active_runs = 1,    
-    tags = ["periodic_run"]
+    tags = ["periodic_run"],
+    default_args = {
+        "owner" : "monk_dude"
+    }
 )
 
 def fetch_periodic_runs():
-    
-    load_related_tickers_path = os.path.join("include", "scripts/dimensional_run/ingest_related_tickers.py")
-    load_ticker_types_path = os.path.join("include", "scripts/dimensional_run/ingest_ticker_types.py")
-    load_ticker_overview_path = os.path.join("include", "scripts/dimensional_run/ingest_tickers_overview.py")
-    load_tickers_path = os.path.join("include", "scripts/dimensional_run/ingest_tickers.py")
 
-    dim_related_tickers_path = os.path.join("include", "scripts/transformation/warehouse/dim_related_tickers.py")
-    dim_tickers_path = os.path.join("include", "scripts/transformation/warehouse/dim_tickers.py")
+    common_kwargs = {
+       "s3_bucket" : Variable.get("AWS_S3_BUCKET_TABULAR"),
+        "catalog_name" : Variable.get("CATALOG_NAME"),
+        "tabular_credential" : Variable.get("TABULAR_CREDENTIAL"),
+        "aws_access_key_id" : Variable.get("DATAEXPERT_AWS_ACCESS_KEY_ID"),
+        "aws_secret_access_key" : Variable.get("DATAEXPERT_AWS_SECRET_ACCESS_KEY"),
+        "aws_region" : Variable.get("AWS_GLUE_REGION"),
+        "polygon_credentials" : Variable.get('POLYGON_CREDENTIALS')
+    }
+    
+    load_related_tickers_path = os.path.join("include", "eczachly/scripts/dimensional_run/ingest_related_tickers.py")
+    load_ticker_types_path = os.path.join("include", "eczachly/scripts/dimensional_run/ingest_ticker_types.py")
+    load_ticker_overview_path = os.path.join("include", "eczachly/scripts/dimensional_run/ingest_tickers_overview.py")
+    load_tickers_path = os.path.join("include", "eczachly/scripts/dimensional_run/ingest_tickers.py")
+
+    dim_related_tickers_path = os.path.join("include", "eczachly/scripts/transformation/warehouse/dim_related_tickers.py")
+    dim_tickers_path = os.path.join("include", "eczachly/scripts/transformation/warehouse/dim_tickers.py")
 
     with TaskGroup(group_id = "extract_dimensional_data") as extract_dimensional_data:
         load_related_tickers = PythonOperator(
