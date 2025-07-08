@@ -1,0 +1,7 @@
+boto3
+python-dotenv
+requests
+astronomer-cosmos
+apache-airflow-providers-amazon
+
+holidays
